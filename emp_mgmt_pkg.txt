@@ -1,0 +1,11 @@
+CREATE OR REPLACE PACKAGE emp_mgmt_pkg AS
+    -- Public constant
+    c_max_raise_pct CONSTANT NUMBER = 0.25;
+
+    -- Public function declaration
+    FUNCTION get_salary(p_emp_id IN NUMBER) RETURN NUMBER;
+
+    -- Public procedure declaration
+    PROCEDURE give_raise(p_emp_id IN NUMBER, p_raise_pct IN NUMBER);
+END emp_mgmt_pkg;
+

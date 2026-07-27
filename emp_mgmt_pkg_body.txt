@@ -1,0 +1,42 @@
+CREATE OR REPLACE PACKAGE BODY emp_mgmt_pkg AS
+
+    -- Private helper function (only accessible inside this body)
+    FUNCTION employee_exists(p_emp_id IN NUMBER) RETURN BOOLEAN IS
+        v_count NUMBER;
+    BEGIN
+        SELECT COUNT(*) INTO v_count FROM employees WHERE employee_id = p_emp_id;
+        RETURN v_count > 0;
+    END employee_exists;
+
+    -- Implementation of public function get_salary
+    FUNCTION get_salary(p_emp_id IN NUMBER) RETURN NUMBER IS
+        v_salary NUMBER;
+    BEGIN
+        IF employee_exists(p_emp_id) THEN
+            SELECT salary INTO v_salary FROM employees WHERE employee_id = p_emp_id;
+            RETURN v_salary;
+        ELSE
+            RETURN 0;
+        END IF;
+    END get_salary;
+
+    -- Implementation of public procedure give_raise
+    PROCEDURE give_raise(p_emp_id IN NUMBER, p_raise_pct IN NUMBER) IS
+    BEGIN
+        -- Validate raise percentage against the public constant
+        IF p_raise_pct > c_max_raise_pct THEN
+            raise_application_error(-20001, 'Raise exceeds maximum allowable percentage.');
+        END IF;
+
+        IF employee_exists(p_emp_id) THEN
+            UPDATE employees 
+            SET salary = salary + (salary * p_raise_pct) 
+            WHERE employee_id = p_emp_id;
+            COMMIT;
+        ELSE
+            raise_application_error(-20002, 'Employee ID does not exist.');
+        END IF;
+    END give_raise;
+
+END emp_mgmt_pkg;
+/
